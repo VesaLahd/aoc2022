@@ -1,7 +1,7 @@
 const fs = require('fs')
 const R = require('ramda')
 
-const content = fs.readFileSync('./input.txt', {encoding: 'utf-8'})
+const content = fs.readFileSync(`${__dirname}/input.txt`, {encoding: 'utf-8'})
 
 const sums = R.compose(
   R.map(R.sum),

@@ -1,7 +1,7 @@
 const fs = require('fs')
 const R = require('ramda')
 
-const content = fs.readFileSync('./input.txt', {encoding: 'utf-8'})
+const content = fs.readFileSync(`${__dirname}/input.txt`, {encoding: 'utf-8'})
 
 // A for Rock, B for Paper, and C for Scissors
 // X for Rock, Y for Paper, and Z for Scissors.
