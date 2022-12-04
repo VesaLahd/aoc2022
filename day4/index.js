@@ -30,8 +30,7 @@ const isOverlapping = R.compose(
 
 const countByTrue = fn => R.compose(
   R.length,
-  R.filter(R.identity),
-  R.map(fn)
+  R.filter(fn)
 )
 
 const part1 = R.compose(
