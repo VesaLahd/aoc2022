@@ -4,7 +4,7 @@ const R = require('ramda')
 const content = fs.readFileSync(`${__dirname}/input.txt`, {encoding: 'utf-8'})
 
 const [crane, instructions] = R.compose(
-  R.converge(Array.of, [R.take(9), R.drop(10)]),
+  R.converge(Array.of, [R.take(8), R.drop(10)]),
   R.split('\n')
 )(content)
 
@@ -12,7 +12,6 @@ const parseCraneState = R.compose(
   R.converge(R.reduce(R.mergeWith(R.concat)), [R.head, R.tail]),
   R.map(R.compose(R.fromPairs, R.map(R.over(R.lensIndex(0), R.compose(R.inc, Number))), R.toPairs)),
   R.reverse,
-  R.init,
   R.map(R.compose(R.map(R.compose(R.replace(/\W/g, ''), R.trim)), R.splitEvery(4)))
 )
 
