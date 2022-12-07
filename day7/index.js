@@ -21,14 +21,11 @@ const upsertFileEntity = R.curry((state, lens, metadata, name) => R.unless(
   R.over(lens, R.mergeLeft({[name]: metadata === 'dir' ? {} : Number(metadata)}))
 )(state))
 
-
-const parseLs = R.curry((state, entity) => {
-    const fileEntities = R.compose(R.map(R.split(' ')), R.drop(1))(entity)
-    return R.reduce((acc, entity) => {
-      const [metadata, name] = entity
-      return {...acc, files: upsertFileEntity(acc.files, R.lensPath(acc.pwd), metadata, name)}
-    }, state, fileEntities)
-  })
+const parseLs = R.curry((state, entity) => R.compose(
+    R.reduce((acc, entity) => ({...acc, files: upsertFileEntity(acc.files, R.lensPath(acc.pwd), ...entity)}), state),
+    R.map(R.split(' ')),
+    R.drop(1)
+  )(entity))
 
 const parseCd = R.curry((state, entity) => {
   const [pwd] = R.compose(R.drop(2), R.split(' '), R.head)(entity);
@@ -51,21 +48,17 @@ const fileSystem = R.compose(
   parseOutput,
 )(content)
 
-const directorySize = R.curry((files, path) => {
-  const fileSum = R.compose(
-    R.sum,
-    R.converge(
-      R.compose(R.filter(R.identity), R.flatten, Array.of), 
-      [
-        R.compose(R.sum, R.values, R.reject(R.is(Object))), 
-        R.compose(R.map(directorySize(files)), R.map(R.append(R.__, path)), R.keys, R.filter(R.is(Object)))
-      ]
-    ),
-    R.path(path)
-    )(files)
-
-  return fileSum
-})
+const directorySize = R.curry((files, path) => R.compose(
+  R.sum,
+  R.converge(
+    R.compose(R.filter(R.identity), R.flatten, Array.of), 
+    [
+      R.compose(R.sum, R.values, R.reject(R.is(Object))), 
+      R.compose(R.map(directorySize(files)), R.map(R.append(R.__, path)), R.keys, R.filter(R.is(Object)))
+    ]
+  ),
+  R.path(path)
+  )(files))
 
 const flattenDirectoryPaths = R.curry((fileSystem, path) => R.compose(
     R.converge(
@@ -90,11 +83,7 @@ const part1 = R.compose(
   R.filter(R.gte(100000)),
 )(allSizes)
 
-const currentSize = directorySize(fileSystem, [])
-const totalSize = 70000000
-const neededSize = 30000000
-const unusedSize = totalSize - currentSize
-const spaceNeeded = neededSize - unusedSize
+const spaceNeeded = 30000000 - (70000000 - directorySize(fileSystem, []))
 
 const part2 = R.compose(
   R.apply(Math.min),
