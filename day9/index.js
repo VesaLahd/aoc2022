@@ -37,12 +37,10 @@ const instructions = R.compose(
 )(content)
 
 const moveRopeKnots = R.curry((rope, direction) => R.converge(
-  R.scan((acc, knot) => {
-    return R.when(
+  R.scan((acc, knot) => R.when(
       R.compose(R.lt(Math.sqrt(2)), distanceBetweenPoints(acc)), 
       R.converge(move, [R.compose(vectorComponentCap, R.flip(vectorBetween)(acc)), R.identity])
     )(knot)
-  }
   ), [R.compose(move(direction), R.head), R.tail])(rope)
 )
 
