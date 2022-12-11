@@ -3,7 +3,6 @@ const R = require('ramda')
 
 const content = R.split('\n', fs.readFileSync(`${__dirname}/input.txt`, {encoding: 'utf-8'}))
 
-
 const parseInstruction = R.compose(
   R.drop(1),
   R.ifElse(R.compose(R.equals(2), R.length), R.over(R.lensIndex(1), R.compose(R.append(R.__, [R.identity]), R.add, Number)), R.append([R.identity])),
