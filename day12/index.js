@@ -19,8 +19,6 @@ const field = R.compose(
   ]),
 )(content)
 
-
-
 const findCoordinates = R.curry((field, value) => {
   const y = R.findIndex(R.includes(value), field)
   const x = R.compose(R.findIndex(R.equals(value)), R.nth(y))(field)
@@ -49,29 +47,37 @@ const adjacentCoordinates = coordinates => R.compose(
 
 const canMove = R.curry((field, start, coordinates) =>  getValueFromCoordinates(field, coordinates) <= getValueFromCoordinates(field, start) + 1)
 
-const shortestPath = R.curry((field, start, end) => {
-  let pathLengths = R.map(R.map(R.always(Infinity)), field)
+const emptyPathLengths = () => R.map(R.map(R.always(Infinity)), field)
+
+const shortestPath = R.curry((canMove, start) => {
+  let pathLengths = emptyPathLengths()
   pathLengths[start[1]][start[0]] = 0
 
   let toVisit = [start]
   while (toVisit.length > 0) {
     const visiting = toVisit[0]
     const pathLength = pathLengths[visiting[1]][visiting[0]]
-    const possibleNeighbors =  R.filter(c => pathLengths[c[1]][c[0]] > pathLength + 1, R.filter(canMove(field, visiting), adjacentCoordinates(visiting)))
+    const possibleNeighbors =  R.filter(c => pathLengths[c[1]][c[0]] > pathLength + 1, R.filter(canMove(visiting), adjacentCoordinates(visiting)))
     possibleNeighbors.forEach(c => {
       pathLengths[c[1]][c[0]] = pathLength + 1
     })
 
     toVisit = toVisit.concat(possibleNeighbors).slice(1, Infinity)
   }
-  return pathLengths[end[1]][end[0]];
+  return pathLengths
 })
 
-const part1 = shortestPath(field, start, end)
+const pathLengthsFromStart = shortestPath(canMove(field), start)
+const pathLengthsFromEnd = shortestPath(R.flip(canMove(field)), end)
+
+const part1 = pathLengthsFromStart[end[1]][end[0]]
 
 const lowestPoints = R.filter(([x,y]) => field[y][x] === 1, R.chain(x => R.times(y => [x, y], height), R.range(0, width)))
 
-const paths = R.map(shortestPath(field, R.__, end), lowestPoints)
-const part2 = R.reduce(Math.min, Infinity, paths)
+const part2 = R.compose(
+  R.reduce(Math.min, Infinity),
+  R.map(c => pathLengthsFromEnd[c[1]][c[0]])
+)(lowestPoints)
 
+// 423 416
 console.log(part1, part2)
